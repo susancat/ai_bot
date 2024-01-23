@@ -1,9 +1,5 @@
-import express from 'express';
-
-const app = express();
-
-// middleware to use JSON 
-app.use(express.json());
+import app from './app';
+import { connectToDB } from './db/connection';
 // GET
 app.get('/hello', (req, res, next) => {
   return res.send('Hello World!');
@@ -19,5 +15,11 @@ app.delete('/user/:id', (req, res, next) => {
   return res.send('Hello World!');
 });
 
-// connections and listeners
-app.listen(3000, () => console.log("Server is running on port 3000"));
+const PORT = process.env.PORT || 3000;
+// connect to DB
+connectToDB()
+  .then(() => {
+    // connections and listeners
+    app.listen(PORT, () => console.log("Server launched and connected to MongoDB"));
+  })
+  .catch(err => console.log(err));
