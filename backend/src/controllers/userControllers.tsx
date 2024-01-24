@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import User from "../models/User";
 import { hash, compare } from "bcrypt";
-// import { createToken } from "../utils/token-manager";
-// import { COOKIE_NAME } from "../utils/constants.js";
+import { createToken } from "../utils/tokenManager";
+import { COOKIE_NAME } from "../utils/constants";
 
 export const getAllUsers = async (
   req: Request,
@@ -33,7 +33,7 @@ export const userSignup = async (
     const user = new User({ name, email, password: hashedPassword });
     await user.save();
 
-    // create token and store cookie
+    // clear, then create token and store cookie
     res.clearCookie(COOKIE_NAME, {
       httpOnly: true,
       domain: "localhost",
@@ -42,14 +42,15 @@ export const userSignup = async (
     });
 
     const token = createToken(user._id.toString(), user.email, "7d");
-    const expires = new Date();
+
+    const expires = new Date(); //grab the current date then plus 7 days
     expires.setDate(expires.getDate() + 7);
-    res.cookie(COOKIE_NAME, token, {
+    res.cookie(COOKIE_NAME, token, { //cookie will be generated within the browser, then provide some cookie options
       path: "/",
       domain: "localhost",
       expires,
       httpOnly: true,
-      signed: true,
+      signed: true
     });
 
     return res
