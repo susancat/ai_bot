@@ -6,12 +6,12 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import NotFound from './pages/NotFound'
 import Chat from './pages/Chat'
-
+import { useAuth } from './context/AuthContext'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  // const [count, setCount] = useState(0)
+// console.log(useAuth());
   return (
     <main>
       <Header />
