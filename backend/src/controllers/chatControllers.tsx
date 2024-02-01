@@ -4,7 +4,7 @@ import { configureOpenAI } from "../config/openaiConfig";
 // import { OpenAIApi, ChatCompletionRequestMessage } from "openai";
 import OpenAI, {ChatCompletionRequestMessage} from "openai";
 const openai = new OpenAI({
-    apiKey: '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'
+    apiKey: process.env.OPENAI_API_KEY,
   });
 export const generateChatCompletion = async (req: Request, res: Response, next: NextFunction) => {
     const { message } = req.body;
