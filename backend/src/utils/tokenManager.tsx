@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
+import { COOKIE_NAME } from "./constants";
 
 export const createToken = ( id:string, email: string, expiresIn: string ) => {
     const payload = { id, email };
@@ -10,7 +11,8 @@ export const createToken = ( id:string, email: string, expiresIn: string ) => {
 };
 
 export const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.signedCookies[`&{COOKIE_NAME}`]
+    const token = req.signedCookies[`${COOKIE_NAME}`];
+    console.log("token in verifyToken: ", token)
     if (!token || token.trim() === "") {
         return res.status(401).send("Token not Received");
     }

@@ -1,37 +1,57 @@
-import React from 'react';
-import { Box, Button, Avatar, Typography } from '@mui/material'
+import React, { useRef, useState } from 'react';
+import { Box, Button, Avatar, Typography, IconButton } from '@mui/material'
+import { IoMdSend } from 'react-icons/io';
 import { red } from '@mui/material/colors';
 import { useAuth } from '../context/AuthContext';
 import ChatItem from '../components/chat/ChatItem';
-
-const chatMessage = [
-    {
-        "role": "user",
-        "content": "Hi there! How can I use your application?"
-    },
-    {
-        "role": "assistant",
-        "content": "Hello! Welcome to our application. To get started, you can navigate to the settings menu and customize your preferences."
-    },
-    {
-        "role": "user",
-        "content": "Thanks for the info. What features does the app offer?"
-    },
-    {
-        "role": "assistant",
-        "content": "Our app provides various features such as real-time chat, file sharing, and task management. You can explore more by checking out the menu options."
-    },
-    {
-        "role": "user",
-        "content": "Great! How can I invite friends to join the app?"
-    },
-    {
-        "role": "assistant",
-        "content": "To invite friends, go to the 'Invite' section and enter their email addresses. They will receive an invitation to join the app."
-    }
-]
+import { sendChatRequest } from '../helpers/apiCommunicator';
+type Message = {
+    role: "user" | "assistant";
+    content: string;
+}
+//the chatMessage array below is for testing purposes only
+// const chatMessage = [
+//     {
+//         "role": "user",
+//         "content": "Hi there! How can I use your application?"
+//     },
+//     {
+//         "role": "assistant",
+//         "content": "Hello! Welcome to our application. To get started, you can navigate to the settings menu and customize your preferences."
+//     },
+//     {
+//         "role": "user",
+//         "content": "Thanks for the info. What features does the app offer?"
+//     },
+//     {
+//         "role": "assistant",
+//         "content": "Our app provides various features such as real-time chat, file sharing, and task management. You can explore more by checking out the menu options."
+//     },
+//     {
+//         "role": "user",
+//         "content": "Great! How can I invite friends to join the app?"
+//     },
+//     {
+//         "role": "assistant",
+//         "content": "To invite friends, go to the 'Invite' section and enter their email addresses. They will receive an invitation to join the app."
+//     }
+// ]
 const Chat = () => {
+    const inputRef = useRef<HTMLInputElement | null>(null);
     const auth = useAuth();
+    const [chatMessages, setChatMessages] = useState([]);
+    const handleSubmit = async () => {
+        const content = inputRef.current?.value as string;
+        if(inputRef && inputRef.current) {
+            inputRef.current.value = ""; //clear input
+        }
+        const newMessage: Message = { role: "user", content };
+        setChatMessages((prev) => [...prev, newMessage]);
+
+        //send message to open AI API
+        const chatData = await sendChatRequest(content);
+        setChatMessages([...chatData.chats]);
+    }
     return (
         <Box 
             sx={{ 
@@ -108,10 +128,37 @@ const Chat = () => {
                         scrollBehavior: "smooth"
                         }}
                     >
-                        {chatMessage.map(( chat, index ) => (
+                        {chatMessages.map(( chat, index ) => (
+                            //@ts-ignore
                             <ChatItem content={ chat.content } role={ chat.role } key={ index } />
                         ))}
-                    </Box>
+                </Box>
+                <div 
+                    style={{ 
+                        width: '100%', 
+                        padding: '20px', 
+                        borderRadius: 8, 
+                        backgroundColor: '#111D27', 
+                        display: "flex", 
+                        margin: 'auto' 
+                    }}
+                >
+                    <input 
+                        ref={ inputRef }
+                        type='text' 
+                        style={{ 
+                            width: "100%", 
+                            backgroundColor: "transparent", 
+                            padding: '10px', 
+                            border: "none", 
+                            outline: 'none', 
+                            color: 'white', 
+                            fontSize:'20px' }} 
+                    />
+                    <IconButton onClick={handleSubmit} sx={{ ml: 'auto', color: 'white'}}> 
+                        <IoMdSend /> 
+                    </IconButton>
+                </div>
             </Box>
         </Box>
     )
